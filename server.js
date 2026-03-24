@@ -70,7 +70,7 @@ app.post('/api/generar-pdf', async (req, res) => {
         let html = await fs.readFile(htmlPath, 'utf8');
 
         const finalHtml = html
-            .replace('{{baseUrl}}', '') // Dejamos vacío para usar rutas locales del sistema
+            .replace('{{baseUrl}}', 'https://wys-receipts.vercel.app/') // Dejamos vacío para usar rutas locales del sistema
             .replace(/{{companyName}}/g, companyName)
             .replace(/{{date}}/g, date)
             .replace(/{{deposits}}/g, dep.toLocaleString('en-US', { minimumFractionDigits: 2 }))
