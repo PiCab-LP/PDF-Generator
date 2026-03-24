@@ -1,33 +1,34 @@
 require('dotenv').config();
 const express = require('express');
 const puppeteer = require('puppeteer');
-const fs = require('fs-extra'); // Lo dejamos solo para leer el HTML del PDF
+const fs = require('fs-extra');
 const path = require('path');
-const { createClient } = require('@supabase/supabase-js'); // Nueva librería
+const cors = require('cors'); // <--- 1. AGREGADO
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // CONFIGURACIÓN DE SUPABASE
-// Reemplaza estos valores con los que copiaste de Settings > API
 const supabaseUrl = process.env.SUPABASE_URL; 
 const supabaseKey = process.env.SUPABASE_KEY;
 
-if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('TU_URL')) {
-    console.error("❌ ERROR: No has configurado correctamente el archivo .env");
+if (!supabaseUrl || !supabaseKey) {
+    console.error("❌ ERROR: Faltan variables de entorno");
     process.exit(1); 
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+app.use(cors()); // <--- 2. AGREGADO (Permite que el front le hable al back)
 app.use(express.json());
 app.use(express.static('public'));
 
-// 1. OBTENER COMPAÑÍAS DESDE SUPABASE
+// 1. OBTENER COMPAÑÍAS
 app.get('/api/companias', async (req, res) => {
     try {
         const { data, error } = await supabase
-            .from('Companies') // Asegúrate de que se llame exactamente como la creaste (mayúsculas/minúsculas)
+            .from('Companies')
             .select('*')
             .eq('activo', true)
             .order('name', { ascending: true });
@@ -35,12 +36,11 @@ app.get('/api/companias', async (req, res) => {
         if (error) throw error;
         res.json(data);
     } catch (err) {
-        console.error("Error al leer Supabase:", err);
         res.status(500).json({ error: "Error al leer DB" });
     }
 });
 
-// 2. GENERAR PDF Y ACTUALIZAR ESTADO
+// 2. GENERAR PDF
 app.post('/api/generar-pdf', async (req, res) => {
     const { id, companyName, date, deposits, cashouts, fee, credits } = req.body;
     
@@ -59,11 +59,12 @@ app.post('/api/generar-pdf', async (req, res) => {
         });
         const page = await browser.newPage();
         
-        const baseUrl = `http://localhost:${PORT}/`;
-        let html = await fs.readFile(path.join(__dirname, 'public', 'pdf-generated.html'), 'utf8');
+        // --- 3. CAMBIO AQUÍ: Usamos una ruta relativa para Puppeteer ---
+        const htmlPath = path.join(__dirname, 'public', 'pdf-generated.html');
+        let html = await fs.readFile(htmlPath, 'utf8');
 
         const finalHtml = html
-            .replace('{{baseUrl}}', baseUrl)
+            .replace('{{baseUrl}}', '') // Dejamos vacío para usar rutas locales del sistema
             .replace(/{{companyName}}/g, companyName)
             .replace(/{{date}}/g, date)
             .replace(/{{deposits}}/g, dep.toLocaleString('en-US', { minimumFractionDigits: 2 }))
@@ -72,7 +73,12 @@ app.post('/api/generar-pdf', async (req, res) => {
             .replace(/{{credits}}/g, cred.toLocaleString('en-US', { minimumFractionDigits: 2 }))
             .replace(/{{totalBalance}}/g, totalFormatted);
 
-        await page.setContent(finalHtml, { waitUntil: 'networkidle0' });
+        // Importante: Usamos setContent con una ruta base de archivo
+        await page.setContent(finalHtml, { 
+            waitUntil: 'networkidle0',
+            basePath: path.join(__dirname, 'public') // <--- Esto carga las imágenes correctamente
+        });
+
         const pdfBuffer = await page.pdf({ 
             format: 'A4', 
             printBackground: true,
@@ -81,73 +87,46 @@ app.post('/api/generar-pdf', async (req, res) => {
 
         await browser.close();
 
-        // --- ACTUALIZACIÓN EN SUPABASE ---
-        
-        // A. Marcar compañía actual como enviada
-        const { error: updateError } = await supabase
-            .from('Companies')
-            .update({ enviado: true })
-            .eq('id', id);
+        // ACTUALIZACIÓN EN SUPABASE
+        await supabase.from('Companies').update({ enviado: true }).eq('id', id);
 
-        if (updateError) throw updateError;
-
-        // B. Lógica de Auto-Reset (¿Quedan pendientes?)
-        const { data: pendientes, error: checkError } = await supabase
+        const { data: pendientes } = await supabase
             .from('Companies')
             .select('id')
             .eq('enviado', false)
             .eq('activo', true);
 
-        if (pendientes.length === 0) {
-            console.log("♻️ Todas enviadas. Reseteando ciclo...");
-            await supabase
-                .from('Companies')
-                .update({ enviado: false })
-                .eq('activo', true);
+        if (pendientes && pendientes.length === 0) {
+            await supabase.from('Companies').update({ enviado: false }).eq('activo', true);
         }
 
-        // Envío del PDF al cliente
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=${companyName.replace(/\s+/g, '_')}.pdf`);
         res.send(pdfBuffer);
 
     } catch (error) {
         if (browser) await browser.close();
-        console.error("ERROR DETECTADO:", error);
+        console.error("ERROR:", error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// A. Agregar o Editar Compañía (Upsert)
+// RUTAS DE ADMIN (Tus rutas actuales están perfectas)
 app.post('/api/admin/compania', async (req, res) => {
     const { id, name, telefono } = req.body;
     const payload = { name, telefono, activo: true };
-    
-    let query;
-    if (id) {
-        // Si hay ID, editamos
-        query = supabase.from('Companies').update(payload).eq('id', id);
-    } else {
-        // Si no hay ID, creamos nueva
-        query = supabase.from('Companies').insert([payload]);
-    }
-
+    let query = id ? supabase.from('Companies').update(payload).eq('id', id) : supabase.from('Companies').insert([payload]);
     const { error } = await query;
     if (error) return res.status(500).json(error);
     res.json({ success: true });
 });
 
-// B. "Borrar" Compañía (La marcamos como inactiva)
 app.delete('/api/admin/compania/:id', async (req, res) => {
-    const { error } = await supabase
-        .from('Companies')
-        .update({ activo: false })
-        .eq('id', req.params.id);
-
+    const { error } = await supabase.from('Companies').update({ activo: false }).eq('id', req.params.id);
     if (error) return res.status(500).json(error);
     res.json({ success: true });
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor con Supabase listo en http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
 });
