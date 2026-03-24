@@ -104,7 +104,7 @@ app.post('/api/generar-pdf', async (req, res) => {
 
         // Usamos domcontentloaded para que sea mucho más rápido
         await page.setContent(finalHtml, { 
-            waitUntil: 'domcontentloaded', 
+            waitUntil: 'networkidle0', 
             basePath: path.join(__dirname, 'public')
         });
 
