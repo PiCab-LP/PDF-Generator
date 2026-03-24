@@ -479,7 +479,10 @@
 </div>
 
 <script>
-    // Utilidades UI
+// 1. CONFIGURACIÓN GLOBAL: Pega aquí tu URL de Render (Sin la barra '/' al final)
+    const API_URL = 'https://pdf-generator-g87e.onrender.com'; 
+
+    // Utilidades UI (Se mantienen igual)
     function mostrarAlerta(titulo, mensaje) {
         document.getElementById('alertTitle').innerText = titulo;
         document.getElementById('alertMessage').innerText = mensaje;
@@ -498,13 +501,13 @@
         }
     }
 
-    // Conexión con Supabase a través de tu servidor Node.js
+    // Conexión con Supabase a través de Render
     async function cargarEstado() {
         try {
-            const response = await fetch('/api/companias');
+            // CAMBIO: Ahora apunta a Render
+            const response = await fetch(`${API_URL}/api/companias`);
             const data = await response.json();
             
-            // Actualizar Lista Visual (Sidebar)
             const list = document.getElementById('companyList');
             list.innerHTML = data.map(c => `
                 <div class="company-item ${c.enviado ? 'done' : ''}">
@@ -520,19 +523,18 @@
                 </div>
             `).join('');
 
-            // Actualizar Select de Pendientes (Solo las que faltan enviar)
             const select = document.getElementById('companySelect');
             const pendientes = data.filter(c => !c.enviado);
             
             select.innerHTML = '<option value="">Elegir compañía...</option>' + 
                 pendientes.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 
-            // Actualizar Barra de Progreso
             const completados = data.filter(c => c.enviado).length;
             const porcentaje = data.length > 0 ? (completados / data.length) * 100 : 0;
             document.getElementById('progressBar').style.width = porcentaje + '%';
         } catch (err) {
             console.error("Error al cargar datos:", err);
+            mostrarAlerta("Error de Conexión", "No se pudo conectar con el servidor en Render.");
         }
     }
 
@@ -549,7 +551,8 @@
         const companyName = document.getElementById('companySelect').options[document.getElementById('companySelect').selectedIndex].text;
 
         try {
-            const res = await fetch('/api/generar-pdf', {
+            // CAMBIO: Ahora apunta a Render
+            const res = await fetch(`${API_URL}/api/generar-pdf`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -579,8 +582,6 @@
             a.remove();
 
             mostrarAlerta("¡Éxito!", "¡Recibo generado y guardado en la base de datos!");
-            
-            // Recargar datos sin refrescar toda la página para una mejor UX
             await cargarEstado();
             e.target.reset(); 
             
@@ -593,8 +594,6 @@
         }
     };
 
-
-    
     // Carga inicial
     cargarEstado();
 
@@ -604,9 +603,7 @@
         document.getElementById('editCompanyId').value = id;
         document.getElementById('adminCompanyName').value = nombre;
         document.getElementById('adminCompanyPhone').value = telefono;
-        
         document.getElementById('btnSaveCompany').innerText = id ? 'GUARDAR CAMBIOS' : 'AGREGAR';
-        
         document.getElementById('companyModal').classList.add('active');
         document.getElementById('adminCompanyName').focus();
     }
@@ -636,7 +633,8 @@
         btn.disabled = true;
 
         try {
-            const res = await fetch('/api/admin/compania', {
+            // CAMBIO: Ahora apunta a Render
+            const res = await fetch(`${API_URL}/api/admin/compania`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: id ? id : undefined, name, telefono })
@@ -657,7 +655,8 @@
     async function borrarCompania(id) {
         if(!confirm("¿Estás seguro de que deseas eliminar (ocultar) esta compañía de la lista?")) return;
         try {
-            const res = await fetch('/api/admin/compania/' + id, { method: 'DELETE' });
+            // CAMBIO: Ahora apunta a Render
+            const res = await fetch(`${API_URL}/api/admin/compania/${id}`, { method: 'DELETE' });
             if(!res.ok) throw new Error("Error al eliminar la compañía");
             await cargarEstado();
             mostrarAlerta("Eliminada", "La compañía fue eliminada/ocultada correctamente.");
