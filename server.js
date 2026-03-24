@@ -54,8 +54,14 @@ app.post('/api/generar-pdf', async (req, res) => {
     let browser;
     try {
         browser = await puppeteer.launch({ 
-            headless: "new",
-            args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+        headless: "new",
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null, // Render a veces requiere esto
+        args: [
+            '--no-sandbox', 
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage', // Ayuda con la memoria limitada de Render
+            '--single-process'         // Ahorra recursos
+        ] 
         });
         const page = await browser.newPage();
         
