@@ -54,6 +54,19 @@ app.post('/api/generar-pdf', async (req, res) => {
     const total = dep - cash - f - cred;
     const totalFormatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total);
 
+    let feePercentage = "0%";
+        if (dep >= 0 && dep <= 50000) {
+            feePercentage = "10%";
+        } else if (dep > 50000 && dep <= 150000) {
+            feePercentage = "8%";
+        } else if (dep > 150000 && dep <= 300000) {
+            feePercentage = "6%";
+        } else if (dep > 300000 && dep <= 600000) {
+            feePercentage = "4%";
+        } else if (dep > 600000) {
+            feePercentage = "2%";
+        }
+
     try {
         // --- INICIO DE BROWSER POOLING ---
         // Si no hay navegador, o si se desconectó, lo abrimos
@@ -86,7 +99,8 @@ app.post('/api/generar-pdf', async (req, res) => {
             .replace(/{{cashouts}}/g, cash.toLocaleString('en-US', { minimumFractionDigits: 2 }))
             .replace(/{{fee}}/g, f.toLocaleString('en-US', { minimumFractionDigits: 2 }))
             .replace(/{{credits}}/g, cred.toLocaleString('en-US', { minimumFractionDigits: 2 }))
-            .replace(/{{totalBalance}}/g, totalFormatted);
+            .replace(/{{totalBalance}}/g, totalFormatted)
+            .replace(/{{feePercentage}}/g, feePercentage);
 
         // Usamos domcontentloaded para que sea mucho más rápido
         await page.setContent(finalHtml, { 
