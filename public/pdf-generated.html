@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <base href="{{baseUrl}}">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        :root { 
+            color-scheme: light; 
+            --primary-purple: #7b2ff2;
+            --accent-pink: #d500ba;
+            --dark-purple: #2d0a4e;
+            --bg-soft: #f5f0fb;
+            --danger-red: #dc3545;
+        }
+
+        * { box-sizing: border-box; }
+
+        /* --- CENTRADO TOTAL EN LA PÁGINA --- */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #ffffff; /* Fondo blanco de la hoja */
+            color: #2d2d3d;
+            margin: 0;
+            padding: 0;
+            
+            /* Usamos Flexbox para centrar horizontal y verticalmente */
+            display: flex;
+            justify-content: center; /* Centrado horizontal */
+            align-items: center;     /* Centrado vertical */
+            
+            /* Importante: para centrar verticalmente, el body debe medir toda la altura */
+            min-height: 100vh; 
+            width: 100vw;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px; /* Reducido ligeramente para un look más "tarjeta" */
+            border: 1px solid #e8e0f0;
+            border-radius: 32px; /* Bordes más redondeados */
+            padding: 40px 50px;
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+            
+            /* --- EFECTO 3D DE TARJETA FLOTANDO --- */
+            box-shadow: 0 20px 60px rgba(45, 10, 78, 0.1); /* Sombra más suave y profunda */
+            
+            /* Mantenemos el zoom para asegurar que quepa en A4 con la nueva estructura */
+            zoom: 0.95; 
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0; right: 0;
+            width: 120px; height: 120px;
+            background: linear-gradient(135deg, rgba(123, 47, 242, 0.05), rgba(213, 0, 186, 0.05));
+            border-radius: 0 0 0 100%;
+            z-index: 0;
+        }
+
+        .header {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 35px;
+        }
+
+        .company-logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            color: var(--dark-purple);
+            font-size: 30px; /* Un poco más grande ahora que hay espacio */
+            margin: 8px 0;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+        }
+
+        .date-badge {
+            display: inline-block;
+            background: var(--bg-soft);
+            color: var(--primary-purple);
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .details-section {
+            margin-top: 20px;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 0;
+            border-bottom: 1px solid #f0edf5;
+        }
+
+        .row:last-of-type { border-bottom: none; }
+
+        .label-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .icon-img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+        }
+
+        .label-text {
+            font-weight: 600;
+            color: #4a4a68;
+            font-size: 16px;
+        }
+
+        .amount {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            font-size: 19px;
+        }
+
+        .plus { color: #28a745; }
+        .minus { color: var(--danger-red); }
+
+        .balance-card {
+            margin-top: 35px;
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--accent-pink) 100%);
+            border-radius: 24px;
+            padding: 35px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(123, 47, 242, 0.25);
+        }
+
+        .balance-label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            display: block;
+            opacity: 0.9;
+        }
+
+        .balance-val {
+            font-size: 44px; /* Resaltamos más el total */
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -1.5px;
+        }
+
+        .footer {
+            margin-top: 35px;
+            padding: 24px;
+            background: #faf8fd;
+            border-radius: 16px;
+            border: 1px dashed #d6cfe2;
+            font-size: 12px;
+            color: #6c5b7b;
+            text-align: center;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="imgs_pdf/wysaro-isologo-black.png" class="company-logo" alt="Logo">
+            <h1>Hello {{companyName}}!</h1>
+            <span class="date-badge">Balance up to {{date}}</span>
+        </div>
+
+        <div class="details-section">
+            <div class="row">
+                <div class="label-group">
+                    <img src="imgs_pdf/money-bag (3).png" class="icon-img" alt="In">
+                    <span class="label-text">Deposits</span>
+                </div>
+                <span class="amount plus">+${{deposits}}</span>
+            </div>
+
+            <div class="row">
+                <div class="label-group">
+                    <img src="imgs_pdf/money-bag (2).png" class="icon-img" alt="Out">
+                    <span class="label-text">Cashouts</span>
+                </div>
+                <span class="amount minus">-${{cashouts}}</span>
+            </div>
+
+            <div class="row">
+                <div class="label-group">
+                    <img src="imgs_pdf/tax.png" class="icon-img" alt="Fee">
+                    <span class="label-text">Licensee Fee</span>
+                </div>
+                <span class="amount minus">-${{fee}}</span>
+            </div>
+
+            <div class="row">
+                <div class="label-group">
+                    <img src="imgs_pdf/games.png" class="icon-img" alt="Games">
+                    <span class="label-text">Games Total Credits</span>
+                </div>
+                <span class="amount minus">-${{credits}}</span>
+            </div>
+        </div>
+
+        <div class="balance-card">
+            <span class="balance-label">Total Balance</span>
+            <p class="balance-val">{{totalBalance}}</p>
+        </div>
+
+        <div class="footer">
+            <span>You can now review your balance details in the <b>BALANCE</b> section of your backend dashboard.</span>
+        </div>
+    </div>
+</body>
+</html>

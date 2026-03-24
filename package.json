@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "@supabase/supabase-js": "^2.100.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "fs-extra": "^11.3.4",
+    "puppeteer": "^24.40.0"
+  },
+  "name": "pdf-generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "controller.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

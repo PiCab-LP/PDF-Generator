@@ -1,0 +1,147 @@
+[
+  {
+    "id": 1,
+    "name": "Fast Fortunes",
+    "enviado": true
+  },
+  {
+    "id": 2,
+    "name": "Lucky Duck Lounge",
+    "enviado": true
+  },
+  {
+    "id": 3,
+    "name": "Innercore Games",
+    "enviado": true
+  },
+  {
+    "id": 4,
+    "name": "Paper Route",
+    "enviado": true
+  },
+  {
+    "id": 5,
+    "name": "Simply Unmatched",
+    "enviado": false
+  },
+  {
+    "id": 6,
+    "name": "Lucky Shamrock",
+    "enviado": false
+  },
+  {
+    "id": 7,
+    "name": "Crazy Coins",
+    "enviado": false
+  },
+  {
+    "id": 8,
+    "name": "Club Vpower",
+    "enviado": false
+  },
+  {
+    "id": 9,
+    "name": "Dragons Den",
+    "enviado": true
+  },
+  {
+    "id": 10,
+    "name": "Game Lounge",
+    "enviado": true
+  },
+  {
+    "id": 11,
+    "name": "Lucky Fin",
+    "enviado": false
+  },
+  {
+    "id": 12,
+    "name": "House of LingLing",
+    "enviado": false
+  },
+  {
+    "id": 13,
+    "name": "Galaxy Entertainment",
+    "enviado": false
+  },
+  {
+    "id": 14,
+    "name": "Rapid Reloads",
+    "enviado": false
+  },
+  {
+    "id": 15,
+    "name": "Ms Lady Vegas",
+    "enviado": false
+  },
+  {
+    "id": 16,
+    "name": "The Hot Spot",
+    "enviado": false
+  },
+  {
+    "id": 17,
+    "name": "Best Fish Games",
+    "enviado": false
+  },
+  {
+    "id": 18,
+    "name": "Wager Island",
+    "enviado": false
+  },
+  {
+    "id": 19,
+    "name": "777 Twenty Four Seven",
+    "enviado": false
+  },
+  {
+    "id": 20,
+    "name": "Two City Takeover",
+    "enviado": false
+  },
+  {
+    "id": 21,
+    "name": "Luxury Slots",
+    "enviado": false
+  },
+  {
+    "id": 22,
+    "name": "Fast Play Slots",
+    "enviado": false
+  },
+  {
+    "id": 23,
+    "name": "Black Sheep Gameroom",
+    "enviado": false
+  },
+  {
+    "id": 24,
+    "name": "Slot Luck",
+    "enviado": false
+  },
+  {
+    "id": 25,
+    "name": "Wysaro",
+    "enviado": false
+  },
+  {
+    "id": 26,
+    "name": "Legendary Millions Casino",
+    "enviado": false
+  },
+  {
+    "id": 27,
+    "name": "Lucky Waves Arcade",
+    "enviado": false
+  },
+  {
+    "id": 28,
+    "name": "The Penthouse",
+    "enviado": false
+  },
+  {
+    "id": 29,
+    "name": "Candy World",
+    "enviado": false
+  }
+]
