@@ -55,15 +55,15 @@ app.post('/api/generar-pdf', async (req, res) => {
     const totalFormatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total);
 
     let feePercentage = "0%";
-        if (dep >= 0 && dep <= 50000) {
+        if (dep >= 0 && dep <= 60000) {
             feePercentage = "10%";
-        } else if (dep > 50000 && dep <= 150000) {
+        } else if (dep > 60000 && dep <= 200000) {
             feePercentage = "8%";
-        } else if (dep > 150000 && dep <= 300000) {
+        } else if (dep > 200000 && dep <= 500000) {
             feePercentage = "6%";
-        } else if (dep > 300000 && dep <= 600000) {
+        } else if (dep > 500000 && dep <= 1000000) {
             feePercentage = "4%";
-        } else if (dep > 600000) {
+        } else if (dep > 1000000) {
             feePercentage = "2%";
         }
 
