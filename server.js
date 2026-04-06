@@ -10,12 +10,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // CONFIGURACIÓN DE SUPABASE
-const supabaseUrl = process.env.SUPABASE_URL; 
+const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
     console.error("❌ ERROR: Faltan variables de entorno");
-    process.exit(1); 
+    process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -46,7 +46,7 @@ app.get('/api/companias', async (req, res) => {
 // 2. GENERAR PDF
 app.post('/api/generar-pdf', async (req, res) => {
     const { id, companyName, date, deposits, cashouts, fee, credits } = req.body;
-    
+
     const dep = parseFloat(deposits) || 0;
     const cash = parseFloat(cashouts) || 0;
     const f = parseFloat(fee) || 0;
@@ -55,39 +55,39 @@ app.post('/api/generar-pdf', async (req, res) => {
     const totalFormatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total);
 
     let feePercentage = "0%";
-        if (dep >= 0 && dep <= 60000) {
-            feePercentage = "10%";
-        } else if (dep > 60000 && dep <= 200000) {
-            feePercentage = "8%";
-        } else if (dep > 200000 && dep <= 500000) {
-            feePercentage = "6%";
-        } else if (dep > 500000 && dep <= 1000000) {
-            feePercentage = "4%";
-        } else if (dep > 1000000) {
-            feePercentage = "2%";
-        }
+    if (dep >= 0 && dep <= 50000) {
+        feePercentage = "10%";
+    } else if (dep > 50000 && dep <= 150000) {
+        feePercentage = "8%";
+    } else if (dep > 150000 && dep <= 300000) {
+        feePercentage = "6%";
+    } else if (dep > 300000 && dep <= 600000) {
+        feePercentage = "4%";
+    } else if (dep > 600000) {
+        feePercentage = "2%";
+    }
 
     try {
         // --- INICIO DE BROWSER POOLING ---
         // Si no hay navegador, o si se desconectó, lo abrimos
         if (!globalBrowser || !globalBrowser.isConnected()) {
             console.log("🚀 Iniciando instancia global de Puppeteer...");
-            globalBrowser = await puppeteer.launch({ 
+            globalBrowser = await puppeteer.launch({
                 headless: "new",
                 executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
                 args: [
-                    '--no-sandbox', 
+                    '--no-sandbox',
                     '--disable-setuid-sandbox',
                     '--disable-dev-shm-usage',
                     '--single-process'
-                ] 
+                ]
             });
         }
 
         // Solo abrimos una nueva pestaña, no un navegador entero
         const page = await globalBrowser.newPage();
         // --- FIN DE BROWSER POOLING ---
-        
+
         const htmlPath = path.join(__dirname, 'public', 'pdf-generated.html');
         let html = await fs.readFile(htmlPath, 'utf8');
 
@@ -103,13 +103,13 @@ app.post('/api/generar-pdf', async (req, res) => {
             .replace(/{{feePercentage}}/g, feePercentage);
 
         // Usamos domcontentloaded para que sea mucho más rápido
-        await page.setContent(finalHtml, { 
-            waitUntil: 'networkidle0', 
+        await page.setContent(finalHtml, {
+            waitUntil: 'networkidle0',
             basePath: path.join(__dirname, 'public')
         });
 
-        const pdfBuffer = await page.pdf({ 
-            format: 'A4', 
+        const pdfBuffer = await page.pdf({
+            format: 'A4',
             printBackground: true,
             margin: { top: '1cm', bottom: '1cm', left: '1cm', right: '1cm' }
         });
