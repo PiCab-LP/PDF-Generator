@@ -102,6 +102,7 @@ app.post('/api/generar-pdf', async (req, res) => {
         }
 
         const page = await globalBrowser.newPage();
+        await page.setCacheEnabled(false);
         // --- FIN DE BROWSER POOLING ---
 
         const htmlPath = path.join(__dirname, 'public', 'pdf-generated.html');
@@ -127,17 +128,18 @@ app.post('/api/generar-pdf', async (req, res) => {
         // Ajustamos la resolución para alta calidad
         await page.setViewport({ width: 800, height: 1200, deviceScaleFactor: 2 });
 
-        // Seleccionamos solo el contenedor del recibo para tomarle la captura
         const reciboElement = await page.$('.container');
 
         if (!reciboElement) {
             throw new Error("No se encontró el elemento .container en la plantilla HTML.");
         }
 
+        // Generamos el buffer de la imagen
         const imageBuffer = await reciboElement.screenshot({ type: 'png' });
-        // --- FIN CAMBIO A IMAGEN ---
-
         await page.close();
+
+        // Convertimos el Buffer a una cadena Base64
+        const base64Image = imageBuffer.toString('base64');
 
         // ACTUALIZACIÓN EN SUPABASE
         await supabase.from('Companies').update({ enviado: true }).eq('id', id);
@@ -152,10 +154,13 @@ app.post('/api/generar-pdf', async (req, res) => {
             await supabase.from('Companies').update({ enviado: false }).eq('activo', true);
         }
 
-        // --- CABECERAS PARA DESCARGA DE IMAGEN ---
-        res.setHeader('Content-Type', 'image/png');
-        res.setHeader('Content-Disposition', `attachment; filename=${companyName.replace(/\s+/g, '_')}.png`);
-        res.send(imageBuffer);
+        // --- ENVIAR RESPUESTA COMO JSON CON LA IMAGEN BASE64 ---
+        res.json({
+            success: true,
+            message: "Recibo generado con éxito",
+            image: `data:image/png;base64,${base64Image}`,
+            companyName: companyName
+        });
 
     } catch (error) {
         console.error("ERROR:", error);
