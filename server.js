@@ -43,6 +43,24 @@ app.get('/api/companias', async (req, res) => {
     }
 });
 
+// --- NUEVO ENDPOINT: REVERTIR ESTADO ---
+app.post('/api/revertir', async (req, res) => {
+    const { id } = req.body;
+    try {
+        const { error } = await supabase
+            .from('Companies')
+            .update({ enviado: false })
+            .eq('id', id);
+
+        if (error) throw error;
+
+        res.json({ success: true, message: "Compañía revertida a estado pendiente." });
+    } catch (error) {
+        console.error("Error al revertir compañía:", error);
+        res.status(500).json({ error: "Error interno al revertir el estado." });
+    }
+});
+
 // 2. GENERAR IMAGEN (PNG)
 app.post('/api/generar-pdf', async (req, res) => {
     const { id, companyName, date, deposits, cashouts, fee, credits } = req.body;
@@ -145,23 +163,7 @@ app.post('/api/generar-pdf', async (req, res) => {
     }
 });
 
-// --- NUEVO ENDPOINT: REVERTIR ESTADO ---
-app.post('/api/revertir', async (req, res) => {
-    const { id } = req.body;
-    try {
-        const { error } = await supabase
-            .from('Companies')
-            .update({ enviado: false })
-            .eq('id', id);
 
-        if (error) throw error;
-
-        res.json({ success: true, message: "Compañía revertida a estado pendiente." });
-    } catch (error) {
-        console.error("Error al revertir compañía:", error);
-        res.status(500).json({ error: "Error interno al revertir el estado." });
-    }
-});
 
 // RUTAS DE ADMIN
 app.post('/api/admin/compania', async (req, res) => {
