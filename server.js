@@ -63,14 +63,19 @@ app.post('/api/revertir', async (req, res) => {
 
 // 2. GENERAR IMAGEN (PNG)
 app.post('/api/generar-pdf', async (req, res) => {
-    const { id, companyName, date, deposits, cashouts, fee, credits } = req.body;
+    const { id, companyName, date, deposits, cashouts, fee, credits, pastBalance } = req.body;
 
     const dep = parseFloat(deposits) || 0;
     const cash = parseFloat(cashouts) || 0;
     const f = parseFloat(fee) || 0;
     const cred = parseFloat(credits) || 0;
-    const total = dep - cash - f - cred;
+    const pastBal = parseFloat(pastBalance) || 0;
+    const total = dep - cash - f - cred + pastBal;
+
     const totalFormatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total);
+    const pastBalFormatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Math.abs(pastBal));
+    const pastBalSign = pastBal >= 0 ? '+' : '-';
+    const pastBalClass = pastBal >= 0 ? 'plus' : 'minus';
 
     let feePercentage = "0%";
     if (dep >= 0 && dep <= 60000) {
@@ -116,6 +121,9 @@ app.post('/api/generar-pdf', async (req, res) => {
             .replace(/{{cashouts}}/g, cash.toLocaleString('en-US', { minimumFractionDigits: 2 }))
             .replace(/{{fee}}/g, f.toLocaleString('en-US', { minimumFractionDigits: 2 }))
             .replace(/{{credits}}/g, cred.toLocaleString('en-US', { minimumFractionDigits: 2 }))
+            .replace(/{{pastBalFormatted}}/g, pastBalFormatted)
+            .replace(/{{pastBalSign}}/g, pastBalSign)
+            .replace(/{{pastBalClass}}/g, pastBalClass)
             .replace(/{{totalBalance}}/g, totalFormatted)
             .replace(/{{feePercentage}}/g, feePercentage);
 
