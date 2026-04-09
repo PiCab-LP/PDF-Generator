@@ -404,7 +404,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 2000;
+      z-index: 3000;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
@@ -432,74 +432,228 @@
         transform: rotate(360deg);
       }
     }
+
+    /* Nueva UI de Tabla */
+    .table-container {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .modern-table {
+      width: 100%;
+      border-collapse: collapse;
+      color: white;
+    }
+
+    .modern-table th {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 14px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+      white-space: nowrap;
+    }
+
+    .modern-table td {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: middle;
+      font-size: 14px;
+    }
+
+    .modern-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .status-badge.sent {
+      background: rgba(40, 167, 69, 0.2);
+      color: #34d058;
+      border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+
+    .status-badge.pending {
+      background: rgba(255, 193, 7, 0.2);
+      color: #ffc107;
+      border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+
+    .btn-action {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #7b2ff2 0%, #d500ba 100%);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(123, 47, 242, 0.3);
+    }
+
+    .btn-generate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(213, 0, 186, 0.4);
+    }
+
+    .btn-generate:disabled {
+      background: #a097b0;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
   </style>
 </head>
 
 <body>
-  <div class="dashboard-container">
-    <div class="sidebar">
-      <div class="header-actions">
-        <h3 style="margin-bottom: 0">Checklist Envío</h3>
-        <button class="add-company-btn" onclick="crearCompania()">
-          + Nueva
+  <div class="table-container">
+    <div class="header-actions"
+      style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
+      <h2
+        style="color: white; font-weight: 800; font-size: 28px; margin: 0; background: linear-gradient(90deg, #d500ba, #7b2ff2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        Wysaro PDF</h2>
+      <div style="display: flex; gap: 20px; align-items: center;">
+        <div class="progress-container" style="width: 200px; display: flex; flex-direction: column; gap: 5px;">
+          <div style="color: white; font-size: 13px; font-weight: 600; text-align: right;" id="progressText">0% Enviados
+          </div>
+          <div class="progress-bar" style="margin-bottom: 0; height: 8px; background: rgba(255,255,255,0.1);">
+            <div class="progress" id="progressBar" style="height: 100%;"></div>
+          </div>
+        </div>
+        <button class="btn-generate" onclick="crearCompania()" style="padding: 12px 20px; font-size: 14px;">
+          + Nueva Marca
         </button>
       </div>
-      <div id="companyList"></div>
     </div>
 
-    <div class="main-content" style="display: flex; flex-direction: column; gap: 30px">
-      <div class="form-container">
-        <div class="progress-bar">
-          <div class="progress" id="progressBar"></div>
-        </div>
-        <h2 style="color: #2d0a4e; margin-bottom: 20px">
-          Generar Nuevo Recibo
-        </h2>
-
-        <form id="receiptForm">
-          <div class="form-group">
-            <label>Seleccionar Compañía Pendiente</label>
-            <select id="companySelect" required>
-              <option value="">Cargando compañías...</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Fecha del Balance (Inglés)</label>
-            <input type="text" id="fecha" placeholder="March 20th, 2026" required />
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
-            <div class="form-group">
-              <label>Deposits (+)</label>
-              <input type="number" step="0.01" id="deposits" placeholder="0.00" required />
-            </div>
-            <div class="form-group">
-              <label>Cashouts (-)</label>
-              <input type="number" step="0.01" id="cashouts" placeholder="0.00" required />
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
-            <div class="form-group">
-              <label>Licensee Fee (-)</label>
-              <input type="number" step="0.01" id="fee" placeholder="0.00" required />
-            </div>
-            <div class="form-group">
-              <label>Games Credits (-)</label>
-              <input type="number" step="0.01" id="credits" placeholder="0.00" required />
-            </div>
-          </div>
-
-          <button type="submit" class="btn-submit">
-            GENERAR PDF Y MARCAR ENVIADO
-          </button>
-        </form>
-      </div>
+    <div
+      style="background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08); overflow-x: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Nombre de la marca</th>
+            <th>Teléfono o Celular (Tierlock)</th>
+            <th>¿Se envió el balance?</th>
+            <th>Generar Recibo</th>
+            <th style="min-width: 260px;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="companyTableBody">
+          <!-- Las filas se renderizan aquí -->
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <!-- Modal Administrar Compañía -->
+  <div class="modal-overlay" id="receiptGenModal" style="z-index: 2005;">
+    <div class="modal-content" style="max-width: 600px;">
+      <button class="modal-close" onclick="cerrarGenerarRecibo()">&times;</button>
+      <h2 style="color: #1a0533; margin-bottom: 20px; font-weight: 800; font-size: 26px; letter-spacing: -0.5px">
+        Generar Nuevo Recibo
+      </h2>
+
+      <form id="receiptForm">
+        <div class="form-group">
+          <label>Compañía Seleccionada</label>
+          <input type="hidden" id="companySelectHiddenId" required />
+          <input type="text" id="companySelectReadonly" readonly
+            style="background: #f0ebf8; cursor: not-allowed; font-weight: 600; color: #4a4a68; box-shadow: none;"
+            required />
+        </div>
+
+        <div class="form-group">
+          <label>Fecha del Balance</label>
+          <input type="date" id="fecha" required />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+          <div class="form-group">
+            <label>Deposits (+)</label>
+            <input type="number" step="0.01" id="deposits" placeholder="0.00" required />
+          </div>
+          <div class="form-group">
+            <label>Cashouts (-)</label>
+            <input type="number" step="0.01" id="cashouts" placeholder="0.00" required />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+          <div class="form-group">
+            <label>Licensee Fee (-)</label>
+            <input type="number" step="0.01" id="fee" placeholder="0.00" required />
+          </div>
+          <div class="form-group">
+            <label>Games Credits (-)</label>
+            <input type="number" step="0.01" id="credits" placeholder="0.00" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Past Pending Balance (+ / -)</label>
+          <input type="number" step="0.01" id="pastBalance" placeholder="0.00 (Opcional)" />
+        </div>
+
+        <button type="submit" class="btn-submit" style="margin-top: 20px;">
+          GENERAR RECIBO Y MARCAR ENVIADO
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="previewModal" style="z-index: 2005;">
+    <div class="modal-content" style="max-width: 500px; text-align: center; padding: 30px;">
+      <button class="modal-close" onclick="cerrarPreview()">&times;</button>
+      <h2 style="color: #1a0533; margin-bottom: 20px; font-weight: 800; font-size: 22px;">
+        Recibo Generado
+      </h2>
+
+      <div
+        style="background: #f5f0fb; padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e0d6ee; max-height: 400px; overflow-y: auto;">
+        <img id="previewImage" src="" alt="Previsualización del Recibo"
+          style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+      </div>
+
+      <div style="display: flex; gap: 15px; justify-content: center;">
+        <button id="btnCopiarImagen" class="btn-submit" onclick="copiarImagen()"
+          style="margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          📋 COPIAR IMAGEN
+        </button>
+      </div>
+      <p id="copyStatus"
+        style="color: #28a745; font-weight: 600; font-size: 14px; margin-top: 15px; opacity: 0; transition: opacity 0.3s;">
+        ¡Imagen copiada al portapapeles!
+      </p>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="companyModal">
     <div class="modal-content">
       <button class="modal-close" onclick="cerrarModal()">&times;</button>
@@ -528,7 +682,6 @@
     </div>
   </div>
 
-  <!-- Custom Alert Modal -->
   <div class="modal-overlay" id="customAlertModal" style="z-index: 2001">
     <div class="modal-content" style="max-width: 400px; text-align: center">
       <h2 style="
@@ -556,11 +709,41 @@
     </div>
   </div>
 
-  <!-- Loading Overlay -->
+  <div class="modal-overlay" id="customConfirmModal" style="z-index: 2002">
+    <div class="modal-content" style="max-width: 400px; text-align: center">
+      <h2 style="
+            color: #1a0533;
+            margin-bottom: 15px;
+            font-weight: 800;
+            font-size: 22px;
+          " id="confirmTitle">
+        Confirmar Acción
+      </h2>
+      <p id="confirmMessage" style="
+            color: #4a4a68;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            font-size: 15px;
+          "></p>
+      <div style="display: flex; gap: 15px; justify-content: center;">
+        <button onclick="cerrarConfirm()" style="
+              padding: 12px 25px; border-radius: 10px; background: #e8e0f0; color: #4a4a68; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s;
+            " onmouseover="this.style.background='#d6cfe2'" onmouseout="this.style.background='#e8e0f0'">
+          Cancelar
+        </button>
+        <button class="btn-submit" id="btnConfirmOk" style="
+              padding: 12px 25px; border-radius: 10px; width: auto; font-size: 14px; margin-top: 0; background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            ">
+          Sí, proceder
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
     <h3 style="font-weight: 700; font-size: 20px; letter-spacing: -0.5px">
-      Generando PDF...
+      Generando Imagen...
     </h3>
     <p style="opacity: 0.7; font-size: 14px; margin-top: 8px">
       Esto durará unos segundos, ¡no cierres la pestaña!
@@ -568,18 +751,20 @@
   </div>
 
   <script>
-    // 1. CONFIGURACIÓN GLOBAL: Pega aquí tu URL de Render (Sin la barra '/' al final)
+    // 1. CONFIGURACIÓN GLOBAL
     const API_URL = "https://pdf-generator-production-d93d.up.railway.app";
 
-    // Utilidades UI (Se mantienen igual)
+    // Utilidades UI
     function mostrarAlerta(titulo, mensaje) {
       document.getElementById("alertTitle").innerText = titulo;
       document.getElementById("alertMessage").innerText = mensaje;
       document.getElementById("customAlertModal").classList.add("active");
+      document.body.style.overflow = "hidden";
     }
 
     function cerrarAlerta() {
       document.getElementById("customAlertModal").classList.remove("active");
+      document.body.style.overflow = "";
     }
 
     function mostrarLoading(mostrar) {
@@ -590,70 +775,146 @@
       }
     }
 
-    // Conexión con Supabase a través de Render
+    let confirmResolve = null;
+
+    function mostrarConfirm(titulo, mensaje, isDanger = false) {
+      document.getElementById("confirmTitle").innerText = titulo;
+      document.getElementById("confirmMessage").innerText = mensaje;
+      
+      const btnOk = document.getElementById("btnConfirmOk");
+      if (isDanger) {
+        btnOk.style.background = "linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%)";
+        btnOk.innerText = "Sí, eliminar";
+      } else {
+        btnOk.style.background = "linear-gradient(135deg, #f2994a 0%, #f2c94c 100%)";
+        btnOk.innerText = "Sí, revertir";
+      }
+
+      document.getElementById("customConfirmModal").classList.add("active");
+      document.body.style.overflow = "hidden";
+      
+      return new Promise((resolve) => {
+        confirmResolve = resolve;
+      });
+    }
+
+    function cerrarConfirm() {
+      document.getElementById("customConfirmModal").classList.remove("active");
+      document.body.style.overflow = "";
+      if(confirmResolve) {
+        confirmResolve(false);
+        confirmResolve = null;
+      }
+    }
+
+    document.getElementById("btnConfirmOk").addEventListener("click", () => {
+      document.getElementById("customConfirmModal").classList.remove("active");
+      document.body.style.overflow = "";
+      if(confirmResolve) {
+        confirmResolve(true);
+        confirmResolve = null;
+      }
+    });
+
+    // Utilidades de FECHA
+    function formatEnglishDate(dateStr) {
+      if (!dateStr) return "";
+      const [year, month, day] = dateStr.split('-');
+      const dateObj = new Date(year, parseInt(month) - 1, day);
+      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const d = parseInt(day);
+      const ordinal = (d > 3 && d < 21) ? 'th' : ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th'][d % 10];
+      return `${months[dateObj.getMonth()]} ${d}${ordinal}, ${year}`;
+    }
+
+    // Conexión con Supabase
+    // Modal Helpers
+    function abrirGenerarRecibo(id, name) {
+      document.getElementById("companySelectHiddenId").value = id;
+      document.getElementById("companySelectReadonly").value = name;
+
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      document.getElementById("fecha").value = `${year}-${month}-${day}`;
+
+      document.getElementById("receiptGenModal").classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+
+    function cerrarGenerarRecibo() {
+      document.getElementById("receiptGenModal").classList.remove("active");
+      document.getElementById("receiptForm").reset();
+      document.body.style.overflow = "";
+    }
+
     async function cargarEstado() {
       try {
-        // CAMBIO: Ahora apunta a Render
         const response = await fetch(`${API_URL}/api/companias`);
         const data = await response.json();
 
-        const list = document.getElementById("companyList");
-        list.innerHTML = data
-          .map(
-            (c) => `
-            <div class="company-item ${c.enviado ? "done" : ""}">
-                <div class="company-header">
-                    <div class="status-dot ${c.enviado ? "completed" : ""}"></div>
-                    <span>${c.name}</span>
-                    <div class="company-actions">
-                        ${c.enviado ? `
-                            <button class="action-btn" onclick="revertirEnvio('${c.id}')" title="Revertir envío" style="color: #dc3545;">↩️</button>
-                        ` : ""}
-                        
-                        <button class="action-btn" onclick="editarCompania('${c.id}', '${c.name.replace(/'/g, "\\'")}', '${(c.telefono || "").replace(/'/g, "\\'")}')" title="Editar">✏️</button>
-                        <button class="action-btn" onclick="borrarCompania('${c.id}')" title="Borrar">🗑️</button>
-                    </div>
-                </div>
-                ${c.telefono ? `<span class="company-contact">📞 | ✉️ &nbsp; ${c.telefono}</span>` : ""}
-            </div>
-        `,
-          )
-          .join("");
-
-        const select = document.getElementById("companySelect");
-        const pendientes = data.filter((c) => !c.enviado);
-
-        select.innerHTML =
-          '<option value="">Elegir compañía...</option>' +
-          pendientes
-            .map((c) => `<option value="${c.id}">${c.name}</option>`)
+        const tbody = document.getElementById("companyTableBody");
+        if (data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.6); padding: 30px;">No hay marcas registradas.</td></tr>`;
+        } else {
+          tbody.innerHTML = data
+            .map(
+              (c) => `
+                <tr style="${c.enviado ? 'opacity: 0.7; border-left: 3px solid #28a745;' : 'opacity: 1; border-left: 3px solid transparent;'} transition: all 0.3s;">
+                    <td style="font-weight: 600;">${c.name}</td>
+                    <td style="color: rgba(255,255,255,0.8);">${c.telefono || '-'}</td>
+                    <td>
+                        <div class="status-badge ${c.enviado ? 'sent' : 'pending'}">
+                            ${c.enviado ? '✓ Sí, enviado' : 'Pendiente'}
+                        </div>
+                    </td>
+                    <td>
+                         <button class="btn-generate" onclick="abrirGenerarRecibo('${c.id}', '${c.name.replace(/'/g, "\\'")}')" ${c.enviado ? 'disabled title="Ya fue enviado"' : ''}>
+                            Generar Recibo
+                         </button>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button class="btn-action" onclick="editarCompania('${c.id}', '${c.name.replace(/'/g, "\\'")}', '${(c.telefono || "").replace(/'/g, "\\'")}')" title="Editar detalles">✏️</button>
+                            <button class="btn-action" onclick="borrarCompania('${c.id}')" title="Eliminar registro">🗑️</button>
+                            ${c.enviado ? `
+                                <button class="btn-action" onclick="revertirEnvio('${c.id}')" title="Revertir envío" style="color: #ff6b6b; border-color: rgba(255,107,107,0.3);">↩️</button>
+                            ` : ""}
+                        </div>
+                    </td>
+                </tr>
+            `,
+            )
             .join("");
+        }
 
         const completados = data.filter((c) => c.enviado).length;
         const porcentaje =
           data.length > 0 ? (completados / data.length) * 100 : 0;
         document.getElementById("progressBar").style.width = porcentaje + "%";
+        document.getElementById("progressText").innerText = `Enviados (${completados}/${data.length})`;
       } catch (err) {
         console.error("Error al cargar datos:", err);
         mostrarAlerta(
           "Error de Conexión",
-          "No se pudo conectar con el servidor en Render.",
+          "No se pudo conectar con el servidor.",
         );
       }
     }
 
     async function revertirEnvio(id) {
-      if (!confirm("¿Seguro que quieres marcar esta compañía como NO ENVIADA?")) return;
+      const confirmado = await mostrarConfirm("Revertir Envío", "¿Seguro que quieres marcar esta compañía como NO ENVIADA?", false);
+      if (!confirmado) return;
 
       try {
-        const res = await fetch('/api/revertir', {
+        const res = await fetch(`${API_URL}/api/revertir`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id })
         });
 
         if (res.ok) {
-          // Llamamos a la función que refresca los datos de la lista y el selector
           cargarEstado();
         } else {
           alert("Error al intentar revertir.");
@@ -662,58 +923,49 @@
         console.error("Error:", err);
       }
     }
+
     document.getElementById("receiptForm").onsubmit = async (e) => {
       e.preventDefault();
       const btn = e.target.querySelector("button");
       const originalText = btn.innerText;
 
-      btn.innerText = "Generando PDF...";
+      btn.innerText = "Generando Imagen...";
       btn.disabled = true;
       mostrarLoading(true);
 
-      const companyId = document.getElementById("companySelect").value;
-      const companyName =
-        document.getElementById("companySelect").options[
-          document.getElementById("companySelect").selectedIndex
-        ].text;
+      const companyId = document.getElementById("companySelectHiddenId").value;
+      const companyName = document.getElementById("companySelectReadonly").value;
 
       try {
-        // CAMBIO: Ahora apunta a Render
         const res = await fetch(`${API_URL}/api/generar-pdf`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             id: companyId,
             companyName: companyName,
-            date: document.getElementById("fecha").value,
+            date: formatEnglishDate(document.getElementById("fecha").value),
             deposits: document.getElementById("deposits").value,
             cashouts: document.getElementById("cashouts").value,
             fee: document.getElementById("fee").value,
             credits: document.getElementById("credits").value,
+            pastBalance: document.getElementById("pastBalance").value,
           }),
         });
 
+        const data = await res.json();
+
         if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Error en el servidor");
+          throw new Error(data.error || "Error en el servidor");
         }
 
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${companyName.replace(/\s+/g, "_")}_${Date.now()}.png`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        a.remove();
+        cerrarGenerarRecibo();
 
-        mostrarAlerta(
-          "¡Éxito!",
-          "¡Recibo generado y guardado en la base de datos!",
-        );
+        // MUESTRA LA IMAGEN EN EL MODAL DE PREVISUALIZACIÓN
+        document.getElementById("previewImage").src = data.image;
+        document.getElementById("previewModal").classList.add("active");
+        document.body.style.overflow = "hidden";
+
         await cargarEstado();
-        e.target.reset();
       } catch (err) {
         mostrarAlerta("Error al Generar", "Hubo un problema: " + err.message);
       } finally {
@@ -722,6 +974,41 @@
         mostrarLoading(false);
       }
     };
+
+    // Funciones del Modal de Previsualización y Copiado
+    function cerrarPreview() {
+      document.getElementById("previewModal").classList.remove("active");
+      document.getElementById("copyStatus").style.opacity = "0";
+      document.body.style.overflow = "";
+    }
+
+    async function copiarImagen() {
+      const btnCopiar = document.getElementById("btnCopiarImagen");
+      const statusText = document.getElementById("copyStatus");
+      const imgSrc = document.getElementById("previewImage").src;
+
+      try {
+        const response = await fetch(imgSrc);
+        const blob = await response.blob();
+
+        const item = new ClipboardItem({ "image/png": blob });
+        await navigator.clipboard.write([item]);
+
+        btnCopiar.innerHTML = "✅ ¡COPIADO!";
+        btnCopiar.style.background = "#28a745";
+        statusText.style.opacity = "1";
+
+        setTimeout(() => {
+          btnCopiar.innerHTML = "📋 COPIAR IMAGEN";
+          btnCopiar.style.background = "linear-gradient(135deg, #7b2ff2 0%, #d500ba 100%)";
+          statusText.style.opacity = "0";
+        }, 2500);
+
+      } catch (err) {
+        console.error("Error al copiar: ", err);
+        mostrarAlerta("Error al Copiar", "No se pudo copiar la imagen al portapapeles. Es posible que el navegador no tenga los permisos necesarios o estés en una conexión no segura (HTTP).");
+      }
+    }
 
     // Carga inicial
     cargarEstado();
@@ -737,11 +1024,13 @@
         : "AGREGAR";
       document.getElementById("companyModal").classList.add("active");
       document.getElementById("adminCompanyName").focus();
+      document.body.style.overflow = "hidden";
     }
 
     function cerrarModal() {
       document.getElementById("companyModal").classList.remove("active");
       document.getElementById("companyAdminForm").reset();
+      document.body.style.overflow = "";
     }
 
     function crearCompania() {
@@ -764,7 +1053,6 @@
       btn.disabled = true;
 
       try {
-        // CAMBIO: Ahora apunta a Render
         const res = await fetch(`${API_URL}/api/admin/compania`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -787,14 +1075,10 @@
     };
 
     async function borrarCompania(id) {
-      if (
-        !confirm(
-          "¿Estás seguro de que deseas eliminar (ocultar) esta compañía de la lista?",
-        )
-      )
-        return;
+      const confirmado = await mostrarConfirm("Eliminar Compañía", "¿Estás seguro de que deseas eliminar permanentemente esta compañía de tu lista?", true);
+      if (!confirmado) return;
+      
       try {
-        // CAMBIO: Ahora apunta a Render
         const res = await fetch(`${API_URL}/api/admin/compania/${id}`, {
           method: "DELETE",
         });
