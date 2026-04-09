@@ -43,7 +43,7 @@ app.get('/api/companias', async (req, res) => {
     }
 });
 
-// 2. GENERAR PDF
+// 2. GENERAR IMAGEN (PNG)
 app.post('/api/generar-pdf', async (req, res) => {
     const { id, companyName, date, deposits, cashouts, fee, credits } = req.body;
 
@@ -69,7 +69,6 @@ app.post('/api/generar-pdf', async (req, res) => {
 
     try {
         // --- INICIO DE BROWSER POOLING ---
-        // Si no hay navegador, o si se desconectó, lo abrimos
         if (!globalBrowser || !globalBrowser.isConnected()) {
             console.log("🚀 Iniciando instancia global de Puppeteer...");
             globalBrowser = await puppeteer.launch({
@@ -84,7 +83,6 @@ app.post('/api/generar-pdf', async (req, res) => {
             });
         }
 
-        // Solo abrimos una nueva pestaña, no un navegador entero
         const page = await globalBrowser.newPage();
         // --- FIN DE BROWSER POOLING ---
 
@@ -102,19 +100,25 @@ app.post('/api/generar-pdf', async (req, res) => {
             .replace(/{{totalBalance}}/g, totalFormatted)
             .replace(/{{feePercentage}}/g, feePercentage);
 
-        // Usamos domcontentloaded para que sea mucho más rápido
         await page.setContent(finalHtml, {
             waitUntil: 'networkidle0',
             basePath: path.join(__dirname, 'public')
         });
 
-        const pdfBuffer = await page.pdf({
-            format: 'A4',
-            printBackground: true,
-            margin: { top: '1cm', bottom: '1cm', left: '1cm', right: '1cm' }
-        });
+        // --- CAMBIO A GENERACIÓN DE IMAGEN ---
+        // Ajustamos la resolución para alta calidad
+        await page.setViewport({ width: 800, height: 1200, deviceScaleFactor: 2 });
 
-        // IMPORTANTE: Cerramos solo la pestaña para liberar memoria
+        // Seleccionamos solo el contenedor del recibo para tomarle la captura
+        const reciboElement = await page.$('.container');
+
+        if (!reciboElement) {
+            throw new Error("No se encontró el elemento .container en la plantilla HTML.");
+        }
+
+        const imageBuffer = await reciboElement.screenshot({ type: 'png' });
+        // --- FIN CAMBIO A IMAGEN ---
+
         await page.close();
 
         // ACTUALIZACIÓN EN SUPABASE
@@ -130,13 +134,32 @@ app.post('/api/generar-pdf', async (req, res) => {
             await supabase.from('Companies').update({ enviado: false }).eq('activo', true);
         }
 
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=${companyName.replace(/\s+/g, '_')}.pdf`);
-        res.send(pdfBuffer);
+        // --- CABECERAS PARA DESCARGA DE IMAGEN ---
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Content-Disposition', `attachment; filename=${companyName.replace(/\s+/g, '_')}.png`);
+        res.send(imageBuffer);
 
     } catch (error) {
         console.error("ERROR:", error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+// --- NUEVO ENDPOINT: REVERTIR ESTADO ---
+app.post('/api/revertir', async (req, res) => {
+    const { id } = req.body;
+    try {
+        const { error } = await supabase
+            .from('Companies')
+            .update({ enviado: false })
+            .eq('id', id);
+
+        if (error) throw error;
+
+        res.json({ success: true, message: "Compañía revertida a estado pendiente." });
+    } catch (error) {
+        console.error("Error al revertir compañía:", error);
+        res.status(500).json({ error: "Error interno al revertir el estado." });
     }
 });
 
