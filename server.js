@@ -76,6 +76,7 @@ app.post('/api/generar-pdf', async (req, res) => {
     const pastBalFormatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Math.abs(pastBal));
     const pastBalSign = pastBal >= 0 ? '+' : '-';
     const pastBalClass = pastBal >= 0 ? 'plus' : 'minus';
+    const pastBalanceDisplay = (pastBal !== 0 && !isNaN(pastBal)) ? 'flex' : 'none';
 
     let feePercentage = "0%";
     if (dep >= 0 && dep <= 60000) {
@@ -124,6 +125,7 @@ app.post('/api/generar-pdf', async (req, res) => {
             .replace(/{{pastBalFormatted}}/g, pastBalFormatted)
             .replace(/{{pastBalSign}}/g, pastBalSign)
             .replace(/{{pastBalClass}}/g, pastBalClass)
+            .replace(/{{pastBalanceDisplay}}/g, pastBalanceDisplay)
             .replace(/{{totalBalance}}/g, totalFormatted)
             .replace(/{{feePercentage}}/g, feePercentage);
 
