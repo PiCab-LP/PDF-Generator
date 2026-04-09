@@ -173,8 +173,8 @@ app.post('/api/generar-pdf', async (req, res) => {
 // RUTAS DE ADMIN
 app.post('/api/admin/compania', async (req, res) => {
     const { id, name, telefono } = req.body;
-    const payload = { name, telefono, activo: true };
-    let query = id ? supabase.from('Companies').update(payload).eq('id', id) : supabase.from('Companies').insert([payload]);
+    const payload = { name, telefono, activo: true, created_at: new Date().toISOString() };
+    let query = id ? supabase.from('Companies').update({ name, telefono, activo: true }).eq('id', id) : supabase.from('Companies').insert([payload]);
     const { error } = await query;
     if (error) return res.status(500).json(error);
     res.json({ success: true });
