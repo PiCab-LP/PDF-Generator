@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Generador de Recibos</title>
+  <link rel="icon" href="../image.png" type="image/png">
   <style>
     /* Estilos base */
     @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
@@ -780,7 +781,7 @@
     function mostrarConfirm(titulo, mensaje, isDanger = false) {
       document.getElementById("confirmTitle").innerText = titulo;
       document.getElementById("confirmMessage").innerText = mensaje;
-      
+
       const btnOk = document.getElementById("btnConfirmOk");
       if (isDanger) {
         btnOk.style.background = "linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%)";
@@ -792,7 +793,7 @@
 
       document.getElementById("customConfirmModal").classList.add("active");
       document.body.style.overflow = "hidden";
-      
+
       return new Promise((resolve) => {
         confirmResolve = resolve;
       });
@@ -801,7 +802,7 @@
     function cerrarConfirm() {
       document.getElementById("customConfirmModal").classList.remove("active");
       document.body.style.overflow = "";
-      if(confirmResolve) {
+      if (confirmResolve) {
         confirmResolve(false);
         confirmResolve = null;
       }
@@ -810,7 +811,7 @@
     document.getElementById("btnConfirmOk").addEventListener("click", () => {
       document.getElementById("customConfirmModal").classList.remove("active");
       document.body.style.overflow = "";
-      if(confirmResolve) {
+      if (confirmResolve) {
         confirmResolve(true);
         confirmResolve = null;
       }
@@ -1077,7 +1078,7 @@
     async function borrarCompania(id) {
       const confirmado = await mostrarConfirm("Eliminar Compañía", "¿Estás seguro de que deseas eliminar permanentemente esta compañía de tu lista?", true);
       if (!confirmado) return;
-      
+
       try {
         const res = await fetch(`${API_URL}/api/admin/compania/${id}`, {
           method: "DELETE",
