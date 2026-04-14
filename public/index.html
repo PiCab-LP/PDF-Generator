@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Generador de Recibos</title>
-  <link rel="icon" href="/public/imgs_pdf/image.png" type="image/png">
+  <link rel="icon" type="image/png" href="/public/imgs_pdf/image.png">
   <style>
     /* Estilos base */
     @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
@@ -469,23 +469,34 @@
     }
 
     .status-badge {
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: 1px solid transparent;
+    }
+
+    .status-badge svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
     }
 
     .status-badge.sent {
-      background: rgba(40, 167, 69, 0.2);
-      color: #34d058;
-      border: 1px solid rgba(40, 167, 69, 0.3);
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+      border-color: rgba(16, 185, 129, 0.25);
     }
 
     .status-badge.pending {
-      background: rgba(255, 193, 7, 0.2);
-      color: #ffc107;
-      border: 1px solid rgba(255, 193, 7, 0.3);
+      background: rgba(249, 115, 22, 0.1);
+      color: #f97316;
+      border-color: rgba(249, 115, 22, 0.25);
     }
 
     .btn-action {
@@ -505,6 +516,11 @@
     .btn-action:hover {
       background: rgba(255, 255, 255, 0.1);
       border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-action svg {
+      width: 18px;
+      height: 18px;
     }
 
     .btn-generate {
@@ -550,7 +566,7 @@
           </div>
         </div>
         <button class="btn-generate" onclick="crearCompania()" style="padding: 12px 20px; font-size: 14px;">
-          + Nueva Marca
+          Agregar Nueva Marca
         </button>
       </div>
     </div>
@@ -867,7 +883,9 @@
                     <td style="color: rgba(255,255,255,0.8);">${c.telefono || '-'}</td>
                     <td>
                         <div class="status-badge ${c.enviado ? 'sent' : 'pending'}">
-                            ${c.enviado ? '✓ Sí, enviado' : 'Pendiente'}
+                            ${c.enviado 
+                                ? '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check-big-icon lucide-circle-check-big"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg> Enviado' 
+                                : '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock7-icon lucide-clock-7"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l-2 4"/></svg> Pendiente'}
                         </div>
                     </td>
                     <td>
@@ -877,10 +895,16 @@
                     </td>
                     <td>
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <button class="btn-action" onclick="editarCompania('${c.id}', '${c.name.replace(/'/g, "\\'")}', '${(c.telefono || "").replace(/'/g, "\\'")}')" title="Editar detalles">✏️</button>
-                            <button class="btn-action" onclick="borrarCompania('${c.id}')" title="Eliminar registro">🗑️</button>
+                            <button class="btn-action" onclick="editarCompania('${c.id}', '${c.name.replace(/'/g, "\\'")}', '${(c.telefono || "").replace(/'/g, "\\'")}')" title="Editar detalles">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
+                            </button>
+                            <button class="btn-action" onclick="borrarCompania('${c.id}')" title="Eliminar registro">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
                             ${c.enviado ? `
-                                <button class="btn-action" onclick="revertirEnvio('${c.id}')" title="Revertir envío" style="color: #ff6b6b; border-color: rgba(255,107,107,0.3);">↩️</button>
+                                <button class="btn-action" onclick="revertirEnvio('${c.id}')" title="Revertir envío" style="color: #ff6b6b; border-color: rgba(255,107,107,0.3);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo2-icon lucide-undo-2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+                                </button>
                             ` : ""}
                         </div>
                     </td>
