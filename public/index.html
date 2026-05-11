@@ -547,10 +547,93 @@
       box-shadow: none;
       transform: none;
     }
+
+    /* Toast Notifications */
+    #toast-container {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: rgba(26, 5, 51, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-left: 4px solid #7b2ff2;
+      border-radius: 16px;
+      padding: 16px 20px;
+      min-width: 320px;
+      max-width: 450px;
+      color: white;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      pointer-events: auto;
+      animation: toast-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+      transition: all 0.3s ease;
+    }
+
+    .toast.hide {
+      animation: toast-out 0.4s ease forwards;
+    }
+
+    .toast-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: 8px;
+    }
+
+    .toast-success { border-left-color: #10b981; }
+    .toast-success .toast-icon { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+
+    .toast-error { border-left-color: #ef4444; }
+    .toast-error .toast-icon { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+    .toast-info { border-left-color: #3b82f6; }
+    .toast-info .toast-icon { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+
+    .toast-content {
+      flex-grow: 1;
+    }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 2px;
+      display: block;
+    }
+
+    .toast-message {
+      font-size: 13px;
+      opacity: 0.8;
+      line-height: 1.4;
+    }
+
+    @keyframes toast-in {
+      from { transform: translateX(120%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes toast-out {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(120%); opacity: 0; }
+    }
   </style>
 </head>
 
 <body>
+  <div id="toast-container"></div>
   <div class="table-container">
     <div class="header-actions"
       style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
@@ -699,32 +782,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="customAlertModal" style="z-index: 2001">
-    <div class="modal-content" style="max-width: 400px; text-align: center">
-      <h2 style="
-            color: #1a0533;
-            margin-bottom: 15px;
-            font-weight: 800;
-            font-size: 22px;
-          " id="alertTitle">
-        Mensaje
-      </h2>
-      <p id="alertMessage" style="
-            color: #4a4a68;
-            margin-bottom: 25px;
-            line-height: 1.5;
-            font-size: 15px;
-          "></p>
-      <button class="btn-submit" onclick="cerrarAlerta()" style="
-            padding: 14px 30px;
-            width: auto;
-            min-width: 140px;
-            margin-top: 0;
-          ">
-        ENTENDIDO
-      </button>
-    </div>
-  </div>
+
 
   <div class="modal-overlay" id="customConfirmModal" style="z-index: 2002">
     <div class="modal-content" style="max-width: 400px; text-align: center">
@@ -772,17 +830,7 @@
     const API_URL = "https://pdf-generator-production-d93d.up.railway.app";
 
     // Utilidades UI
-    function mostrarAlerta(titulo, mensaje) {
-      document.getElementById("alertTitle").innerText = titulo;
-      document.getElementById("alertMessage").innerText = mensaje;
-      document.getElementById("customAlertModal").classList.add("active");
-      document.body.style.overflow = "hidden";
-    }
 
-    function cerrarAlerta() {
-      document.getElementById("customAlertModal").classList.remove("active");
-      document.body.style.overflow = "";
-    }
 
     function mostrarLoading(mostrar) {
       if (mostrar) {
@@ -790,6 +838,39 @@
       } else {
         document.getElementById("loadingOverlay").classList.remove("active");
       }
+    }
+
+    function showToast(title, message, type = 'success', duration = 4000) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      
+      let icon = '';
+      if (type === 'success') {
+        icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+      } else if (type === 'error') {
+        icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+      } else {
+        icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+      }
+
+      toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-content">
+          <span class="toast-title">${title}</span>
+          <span class="toast-message">${message}</span>
+        </div>
+      `;
+
+      container.appendChild(toast);
+
+      // Auto remove
+      setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => {
+          container.removeChild(toast);
+        }, 400);
+      }, duration);
     }
 
     let confirmResolve = null;
@@ -921,9 +1002,10 @@
         document.getElementById("progressText").innerText = `Enviados (${completados}/${data.length})`;
       } catch (err) {
         console.error("Error al cargar datos:", err);
-        mostrarAlerta(
+        showToast(
           "Error de Conexión",
           "No se pudo conectar con el servidor.",
+          "error"
         );
       }
     }
@@ -992,7 +1074,7 @@
 
         await cargarEstado();
       } catch (err) {
-        mostrarAlerta("Error al Generar", "Hubo un problema: " + err.message);
+        showToast("Error al Generar", "Hubo un problema: " + err.message, "error");
       } finally {
         btn.innerText = originalText;
         btn.disabled = false;
@@ -1031,7 +1113,7 @@
 
       } catch (err) {
         console.error("Error al copiar: ", err);
-        mostrarAlerta("Error al Copiar", "No se pudo copiar la imagen al portapapeles. Es posible que el navegador no tenga los permisos necesarios o estés en una conexión no segura (HTTP).");
+        showToast("Error al Copiar", "No se pudo copiar la imagen al portapapeles. Es posible que el navegador no tenga los permisos necesarios.", "error");
       }
     }
 
@@ -1087,12 +1169,13 @@
 
         cerrarModal();
         await cargarEstado();
-        mostrarAlerta(
+        showToast(
           "¡Compañía Guardada!",
           "La base de datos se actualizó correctamente.",
+          "success"
         );
       } catch (err) {
-        mostrarAlerta("Error", "Hubo un problema: " + err.message);
+        showToast("Error", "Hubo un problema: " + err.message, "error");
       } finally {
         btn.innerText = originalText;
         btn.disabled = false;
@@ -1109,12 +1192,13 @@
         });
         if (!res.ok) throw new Error("Error al eliminar la compañía");
         await cargarEstado();
-        mostrarAlerta(
+        showToast(
           "Eliminada",
-          "La compañía fue eliminada/ocultada correctamente.",
+          "La compañía fue eliminada correctamente.",
+          "success"
         );
       } catch (err) {
-        mostrarAlerta("Error", "Hubo un problema: " + err.message);
+        showToast("Error", "Hubo un problema: " + err.message, "error");
       }
     }
   </script>
